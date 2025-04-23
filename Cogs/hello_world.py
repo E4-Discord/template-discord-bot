@@ -5,7 +5,7 @@ class HelloWorld(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='인사')
+    @commands.command(name='안녕')
     async def hello(self, ctx):
         await ctx.channel.send('안녕하세요!')
 
