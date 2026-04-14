@@ -8,8 +8,7 @@ on:
     tags:
       - 'v*'
     paths:
-      - 'app.py'
-      - 'Cogs/**'
+      - 'src/**'
 
 env:
   REGISTRY: ghcr.io

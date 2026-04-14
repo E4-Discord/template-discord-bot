@@ -22,7 +22,8 @@ class Bot(commands.Bot):
 
     async def setup_hook(self):
         # Cogs 폴더 안의 명령어 로드
-        for filename in os.listdir('Cogs'):
+        cogs_dir = os.path.join(os.path.dirname(__file__), 'Cogs')
+        for filename in os.listdir(cogs_dir):
             if filename.endswith('.py'):
                 await self.load_extension(f'Cogs.{filename[:-3]}')
         
