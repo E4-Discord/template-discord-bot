@@ -7,7 +7,7 @@ class Test(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  
 
-    @app_commands.command(name='테스트', description='개발 편의성을 위한 테스트 명령어입니다.')
+    @app_commands.command(name='테스트', description='테스트 전용 명령어입니다.')
     async def test(self, interaction: discord.Interaction):
         await interaction.response.send_message(f'테스트 성공!')
 
