@@ -11,7 +11,7 @@ class Test(commands.Cog):
     async def version(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         
-        version = os.getenv('version')
+        version = os.getenv('VERSION')
 
         await interaction.followup.send(f'{version}')
 
