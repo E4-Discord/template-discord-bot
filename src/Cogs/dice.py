@@ -11,7 +11,7 @@ class Dice(commands.Cog):
     async def dice(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         num = random.randrange(1, 7)
-        await interaction.followup.send(f'{num}')
+        await interaction.followup.send(f'주사위: {num}')
 
 async def setup(bot):
     await bot.add_cog(Dice(bot))
