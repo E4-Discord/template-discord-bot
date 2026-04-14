@@ -66,6 +66,7 @@ jobs:
         run: |
           REGISTRY_AUTH=$(echo -n '{"username":"${{ github.actor }}","password":"${{ secrets.GITHUB_TOKEN }}","serveraddress":"${{ env.REGISTRY }}"}' | base64 -w 0)
 
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY_OWNER,,}/discord-bot-template" >> ${GITHUB_ENV}
           curl -X POST "https://${{ secrets.PORTAINER_URL }}/api/endpoints/${{ secrets.ENDPOINT_ID }}/docker/images/create?fromImage=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" \
                -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                -H "X-Registry-Auth: $REGISTRY_AUTH"
