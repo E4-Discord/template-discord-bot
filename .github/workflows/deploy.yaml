@@ -62,6 +62,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == format('refs/heads/{0}', 'master')
     steps:
+      - name: Pull Image
+        run: |
+          REGISTRY_AUTH=$(echo -n '{"username":"${{ github.actor }}","password":"${{ secrets.GITHUB_TOKEN }}","serveraddress":"${{ env.REGISTRY }}"}' | base64)
+
+          curl -X POST "https://${{ secrets.PORTAINER_URL }}/api/endpoints/${{ secrets.ENDPOINT_ID }}/docker/images/create?fromImage=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               -H "X-Registry-Auth: $REGISTRY_AUTH"
       - name: Update Portainer Stack
         run: |
           STACK_FILE_CONTENT=$(\
@@ -89,6 +96,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == format('refs/heads/{0}', 'develop')
     steps:
+      - name: Pull Image
+        run: |
+          REGISTRY_AUTH=$(echo -n '{"username":"${{ github.actor }}","password":"${{ secrets.GITHUB_TOKEN }}","serveraddress":"${{ env.REGISTRY }}"}' | base64)
+
+          curl -X POST "https://${{ secrets.PORTAINER_URL }}/api/endpoints/${{ secrets.ENDPOINT_ID }}/docker/images/create?fromImage=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               -H "X-Registry-Auth: $REGISTRY_AUTH"
       - name: Update Portainer Stack
         run: |
           STACK_FILE_CONTENT=$(\
