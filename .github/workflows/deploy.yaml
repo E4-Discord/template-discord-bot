@@ -64,14 +64,25 @@ jobs:
     steps:
       - name: Update Portainer Stack
         run: |
+          STACK_FILE_CONTENT=$(\
+            curl -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_LATEST }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
+                 -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+                 | jq -r '.StackFileContent')
+
+          PAYLOAD=$(jq -n \
+            --arg content "$STACK_FILE_CONTENT" \
+            --argjson id "${{ secrets.STACK_ID_LATEST }}" \
+            '{
+              id: $id,
+              stackFileContent: $content,
+              prune: true,
+              pullImage: true
+            }')
+
           curl -X PUT "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_LATEST }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
-               -H "Authorization: Bearer ${{ secrets.PORTAINER_TOKEN }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                -H "Content-Type: application/json" \
-               -d '{
-                 "id": ${{ secrets.STACK_ID_LATEST }},
-                 "prune": true,
-                 "pullImage": true
-               }'
+               -d "$PAYLOAD"
 
   deploy-dev:
     needs: build-and-push
@@ -80,11 +91,22 @@ jobs:
     steps:
       - name: Update Portainer Stack
         run: |
+          STACK_FILE_CONTENT=$(\
+            curl -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_DEV }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
+                 -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+                 | jq -r '.StackFileContent')
+
+          PAYLOAD=$(jq -n \
+            --arg content "$STACK_FILE_CONTENT" \
+            --argjson id "${{ secrets.STACK_ID_DEV }}" \
+            '{
+              id: $id,
+              stackFileContent: $content,
+              prune: true,
+              pullImage: true
+            }')
+
           curl -X PUT "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_DEV }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
-               -H "Authorization: Bearer ${{ secrets.PORTAINER_TOKEN }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                -H "Content-Type: application/json" \
-               -d '{
-                 "id": ${{ secrets.STACK_ID_DEV }},
-                 "prune": true,
-                 "pullImage": true
-               }'
+               -d "$PAYLOAD"
