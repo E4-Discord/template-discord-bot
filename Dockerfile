@@ -22,6 +22,8 @@ COPY src/ src/
 # 환경 변수 설정
 ENV PATH="$APP_DIR/.venv/bin:$PATH"
 ENV PYTHON_FILE_NAME="app"
+ARG COMMIT_SHA
+ENV VERSION=$COMMIT_SHA
 
 # 파이썬 실행
 ENTRYPOINT ["sh", "-c"]
