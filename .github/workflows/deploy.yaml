@@ -13,7 +13,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/discord-bot-template
+  PACKAGE_NAME: discord-bot-template
+  IMAGE_NAME: ${{ github.repository_owner }}/${{ env.PACKAGE_NAME }}
 
 jobs:
   build-and-push:
@@ -109,3 +110,15 @@ jobs:
                -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                -H "Content-Type: application/json" \
                -d "$PAYLOAD"
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old untagged images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ env.PACKAGE_NAME }}
+          package-type: 'container'
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 3
