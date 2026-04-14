@@ -73,17 +73,23 @@ jobs:
                -H "X-Registry-Auth: $REGISTRY_AUTH"
       - name: Update Portainer Stack
         run: |
+          STACK_ENV=$(curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_LATEST }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               | jq -r '.Env // []')
+
           STACK_FILE_CONTENT=$(\
-            curl -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_LATEST }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
+            curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_LATEST }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
                  -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                  | jq -r '.StackFileContent')
 
           PAYLOAD=$(jq -n \
             --arg content "$STACK_FILE_CONTENT" \
             --argjson id "${{ secrets.STACK_ID_LATEST }}" \
+            --argjson env "$STACK_ENV" \
             '{
               id: $id,
               stackFileContent: $content,
+              env: $env,
               prune: true,
               pullImage: true
             }')
@@ -109,17 +115,23 @@ jobs:
                -H "X-Registry-Auth: $REGISTRY_AUTH"
       - name: Update Portainer Stack
         run: |
+          STACK_ENV=$(curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_DEV }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               | jq -r '.Env // []')
+
           STACK_FILE_CONTENT=$(\
-            curl -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_DEV }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
+            curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.STACK_ID_DEV }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
                  -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                  | jq -r '.StackFileContent')
 
           PAYLOAD=$(jq -n \
             --arg content "$STACK_FILE_CONTENT" \
             --argjson id "${{ secrets.STACK_ID_DEV }}" \
+            --argjson env "$STACK_ENV" \
             '{
               id: $id,
               stackFileContent: $content,
+              env: $env,
               prune: true,
               pullImage: true
             }')
