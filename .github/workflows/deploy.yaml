@@ -14,7 +14,7 @@ on:
 env:
   REGISTRY: ghcr.io
   PACKAGE_NAME: discord-bot-template
-  IMAGE_NAME: ${{ github.repository_owner }}/${{ env.PACKAGE_NAME }}
+  IMAGE_NAME: ${{ github.repository_owner }}/discord-bot-template
 
 jobs:
   build-and-push:
@@ -48,12 +48,15 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=dev,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
 
+      - name: Generate short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Build and push docker image
         uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
-            COMMIT_SHA=${{ substring(github.sha, 0, 7) }}
+            COMMIT_SHA=${{ env.SHORT_SHA }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
