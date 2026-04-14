@@ -7,6 +7,9 @@ on:
       - develop
     tags:
       - 'v*'
+    paths:
+      - 'app.py'
+      - 'Cogs/**'
 
 env:
   REGISTRY: ghcr.io
