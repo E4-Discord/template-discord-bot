@@ -19,11 +19,9 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: read
       packages: write 
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -119,6 +117,8 @@ jobs:
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
+    permissions:
+      packages: write 
     steps:
       - name: Delete old untagged images
         uses: actions/delete-package-versions@v5
