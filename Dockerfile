@@ -8,7 +8,8 @@ LABEL description="Run app.py"
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # 작업 디렉토리 설정
-WORKDIR /app
+ENV APP_DIR=/app
+WORKDIR $APP_DIR
 
 # 파이썬 의존성 패키지 설치
 COPY .python-version pyproject.toml uv.lock ./
@@ -19,7 +20,7 @@ RUN uv sync --frozen
 COPY src/ src/
 
 # 환경 변수 설정
-ENV PATH="/usr/src/app/.venv/bin:$PATH"
+ENV PATH="$APP_DIR/.venv/bin:$PATH"
 ENV PYTHON_FILE_NAME="app"
 
 # 파이썬 실행
