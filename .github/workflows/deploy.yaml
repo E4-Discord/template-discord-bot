@@ -76,11 +76,6 @@ jobs:
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
           fi
 
-      - name: Stop existing stack
-        run: |
-          curl -s -X POST "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ env.STACK_ID }}/stop?endpointId=${{ secrets.ENDPOINT_ID }}" \
-              -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}"
-
       - name: Pull image
         run: |
           REGISTRY_AUTH=$(echo -n '{"username":"${{ github.actor }}","password":"${{ secrets.GITHUB_TOKEN }}","serveraddress":"${{ env.REGISTRY }}"}' | base64 -w 0)
@@ -90,11 +85,33 @@ jobs:
           curl -X POST "https://${{ secrets.PORTAINER_URL }}/api/endpoints/${{ secrets.ENDPOINT_ID }}/docker/images/create?fromImage=${{ env.REGISTRY }}/$IMAGE_NAME:${{ env.IMAGE_TAG }}" \
                -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
                -H "X-Registry-Auth: $REGISTRY_AUTH"
-      
-      - name: Start existing stack
-        run: |  
-          curl -s -X POST "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ env.STACK_ID }}/start?endpointId=${{ secrets.ENDPOINT_ID }}" \
-              -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}"
+
+      - name: Update portainer stack
+        run: |
+          STACK_ENV=$(curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ env.STACK_ID }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               | jq -r '.Env // []')
+
+          STACK_FILE_CONTENT=$(\
+            curl -s -X GET "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ env.STACK_ID }}/file?endpointId=${{ secrets.ENDPOINT_ID }}" \
+                 -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+                 | jq -r '.StackFileContent')
+
+          PAYLOAD=$(jq -n \
+            --arg content "$STACK_FILE_CONTENT" \
+            --argjson id "${{ env.STACK_ID }}" \
+            --argjson env "$STACK_ENV" \
+            '{
+              id: $id,
+              stackFileContent: $content,
+              env: $env,
+              prune: true
+            }')
+
+          curl -X PUT "https://${{ secrets.PORTAINER_URL }}/api/stacks/${{ env.STACK_ID }}?endpointId=${{ secrets.ENDPOINT_ID }}" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -d "$PAYLOAD"
 
   cleanup:
     needs: deploy
