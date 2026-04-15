@@ -1,0 +1,14 @@
+services:
+  discord-bot-template:
+    image: ghcr.io/e4-discord/discord-bot-template:latest
+    container_name: discord-bot-template
+    environment:
+      PYTHON_FILE_NAME: app
+    secrets:
+      - source: discord_bot_template_token
+        target: discord_bot_token
+    restart: always
+
+secrets:
+  discord_bot_template_token:
+    external: true
