@@ -127,3 +127,8 @@ jobs:
           package-type: 'container'
           delete-only-untagged-versions: 'true'
           min-versions-to-keep: 3
+
+      - name: Prune untagged images on Portainer
+        run: |
+          curl -X POST "https://${{ secrets.PORTAINER_URL }}/api/endpoints/${{ secrets.ENDPOINT_ID }}/docker/images/prune?filters=%7B%22dangling%22%3A%5B%22true%22%5D%7D" \
+               -H "X-API-Key:${{ secrets.PORTAINER_TOKEN }}"
